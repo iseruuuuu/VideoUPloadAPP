@@ -13,15 +13,22 @@ class VideoUploaderViewController: UIViewController,UIImagePickerControllerDeleg
     
     
     private var videoUrl: NSURL?
+    private let imagePickerController = UIImagePickerController()
+    private let playerViewController = AVPlayerViewController()
+    
+    
     @IBOutlet weak var thumbnailImageView: UIImageView!
     
     @IBAction func didTapSelectButton(_ sender: Any) {
         selectVideo()
         self.imagePickerController.delegate = self
     }
+    @IBAction func didTapPlayButton(_ sender: Any) {
+        guard let url = videoUrl?.absoluteURL else { return }
+        playVideo(from: url)
+    }
     
     
-    private let imagePickerController = UIImagePickerController()
     
     
     override func viewDidLoad() {
@@ -104,6 +111,15 @@ class VideoUploaderViewController: UIViewController,UIImagePickerControllerDeleg
         }
     }
     
+    private func playVideo(from url: URL) {
+        let player = AVPlayer(url: url)
+        playerViewController.player = player
+        
+        self.present(playerViewController, animated: true) {
+            print("playing video")
+            self.playerViewController.player!.play()
+        }
+    }
     
     
     
