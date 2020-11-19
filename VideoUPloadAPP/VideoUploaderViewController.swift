@@ -9,10 +9,15 @@ import UIKit
 import Photos
 import AVKit
 
-class VideoUploaderViewController: UIViewController {
+class VideoUploaderViewController: UIViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    
+    private var videoUrl: NSURL?
+    @IBOutlet weak var thumbnailImageView: UIImageView!
     
     @IBAction func didTapSelectButton(_ sender: Any) {
         selectVideo()
+        self.imagePickerController.delegate = self
     }
     
     
@@ -73,6 +78,38 @@ class VideoUploaderViewController: UIViewController {
         //実際にimagePickerControllerを呼び出してフォトライブラリを開く
         self.present(self.imagePickerController, animated: true, completion: nil)
     }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        let key = UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerMediaURL")
+        videoUrl = info[key] as? NSURL
+        
+        thumbnailImageView.image =  generateThumbnailFromVideo((videoUrl?.absoluteURL)!)
+        thumbnailImageView.contentMode = .scaleAspectFit
+        imagePickerController.dismiss(animated: true, completion: nil)
+    }
+    
+    func generateThumbnailFromVideo(_ url: URL) -> UIImage? {
+        let asset = AVAsset(url: url)
+        let imageGenerator = AVAssetImageGenerator(asset: asset)
+        imageGenerator.appliesPreferredTrackTransform = true
+        
+        var time = asset.duration
+        time.value = min(time.value, 2)
+        
+        do {
+            let imageRef = try imageGenerator.copyCGImage(at: time, actualTime: nil)
+            return UIImage(cgImage: imageRef)
+        } catch {
+            return nil
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
     
 }
 
